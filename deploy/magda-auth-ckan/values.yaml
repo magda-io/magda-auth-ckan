@@ -14,7 +14,39 @@ global:
 # </ul>
 # This field is for overriding the value set by `global.authPluginRedirectUrl`.
 # Unless you want to have a different value only for this auth plugin, you shouldn't set this value.
-authPluginRedirectUrl:
+authPluginRedirectUrl: 
+
+authPluginConfig:
+  # -- the unique key of the auth plugin. Allowed characters: [a-zA-Z0-9\-]
+  key: "ckan"
+  # -- the display name of the auth plugin.
+  name: "CKAN"
+  # -- the display icon URL of the auth plugin.
+  iconUrl: "/icon.svg"
+  # -- The authentication method of the plugin. Support values are:
+  # <ul>
+  # <li>`IDP-URI-REDIRECTION`: the plugin will rediredct user agent to idp (identity provider) for authentication. e.g. Google & fackebook oauth etc.</li>
+  # <li>`PASSWORD`: the plugin expect frontend do a form post that contains username & password to the plugin for authentication.</li>
+  # <li>`QR-CODE`: the plugin offers a url that is used by the frontend to request auth challenge data. The data will be encoded into a QR-code image and expect the user scan the QR code with a mobile app to complete the authentication request.</li>
+  # </ul>
+  # See [Authentication Plugin Specification](https://github.com/magda-io/magda/blob/master/docs/docs/authentication-plugin-spec.md) for more details
+  authenticationMethod: "PASSWORD"
+  # -- Optional; Only applicable when authenticationMethod = "PASSWORD".
+  # If present, will displayed the heading underneath the login form to provide extra info to users. e.g. how to reset password
+  loginFormExtraInfoHeading: "Register"
+  # -- Optional; Only applicable when authenticationMethod = "PASSWORD".
+  # If present, will displayed the content underneath the login form to provide extra info to users. e.g. how to reset password
+  # Can support content in markdown format.
+  loginFormExtraInfoContent: "To register a new account, [click here](https://demo.ckan.org/user/register)"
+  # -- Optional; Only applicable when authenticationMethod = "PASSWORD".
+  # @default -- "Username"
+  loginFormUsernameFieldLabel: "Username"
+  # -- Optional; Only applicable when authenticationMethod = "PASSWORD".
+  # @default -- "Password"
+  loginFormPasswordFieldLabel: "Password"
+
+# -- The base URL of the CKAN site
+ckanUrl: "https://demo.ckan.org"
 
 # image setting loadding order: (from higher priority to lower priority)
 # - Values.image.x

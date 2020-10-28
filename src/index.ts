@@ -44,6 +44,18 @@ const argv = yargs
         type: "string",
         default: "http://localhost:6104/v0"
     })
+    .option("ckanUrl", {
+        describe: "The base URL of the CKAN site",
+        type: "string",
+        default: "https://demo.ckan.org"
+    })
+    .option("authPluginConfigJson", {
+        describe:
+            "Auth Plugin Config" +
+            "See https://github.com/magda-io/magda/blob/master/docs/docs/authentication-plugin-spec.md.",
+        type: "string",
+        coerce: coerceJson
+    })
     .option("jwtSecret", {
         describe:
             "The secret to use to sign JSON Web Token (JWT) for authenticated requests.  This can also be specified with the JWT_SECRET environment variable.",
@@ -86,7 +98,7 @@ app.get("/healthz", (req, res) => res.send("OK"));
  * a 36x36 size icon to be shown on frontend login page
  */
 app.get("/icon.svg", (req, res) =>
-    res.sendFile(path.resolve(__dirname, "../assets/generic-logo.svg"))
+    res.sendFile(path.resolve(__dirname, "../assets/ckan.png"))
 );
 
 /**
@@ -94,12 +106,7 @@ app.get("/icon.svg", (req, res) =>
  * See [authentication-plugin-spec.md](https://github.com/magda-io/magda/blob/master/docs/docs/authentication-plugin-spec.md)
  */
 app.get("/config", (req, res) =>
-    res.json({
-        key: "test-auth-plugin",
-        name: "Test Auth Plugin",
-        iconUrl: "/icon.svg",
-        authenticationMethod: "IDP-URI-REDIRECTION"
-    } as AuthPluginConfig)
+    res.json((argv.authPluginConfigJson as any) as AuthPluginConfig)
 );
 
 /**
@@ -143,9 +150,7 @@ app.use(
     createAuthPluginRouter({
         passport: passport,
         authorizationApi: authApiClient,
-        // you might want to update the helm chart to pass clientId & clientSecret provided by your idp (identity provied)
-        clientId: "My clientId",
-        clientSecret: "My clientSecret",
+        ckanUrl: argv.ckanUrl,
         externalUrl: argv.externalUrl,
         authPluginRedirectUrl: argv.authPluginRedirectUrl
     })

@@ -1,8 +1,8 @@
 {
-  "name": "magda-auth-template",
+  "name": "magda-auth-ckan",
   "version": "1.0.0",
-  "description": "A Magda Authentication Plugin Template. You can use this as a base to build your own Authentication Plugin",
-  "repository": "https://github.com/magda-io/magda-auth-template.git",
+  "description": "A Magda Authentication Plugin for CKAN",
+  "repository": "https://github.com/magda-io/magda-auth-ckan.git",
   "author": "",
   "license": "Apache-2.0",
   "private": true,
@@ -15,7 +15,7 @@
     "test": "mocha --require ts-node/register \"src/test/**/*.spec.ts\"",
     "docker-build-local": "create-docker-context-for-node-component --build --push --tag auto --local",
     "docker-build-prod": "create-docker-context-for-node-component --build --push --tag auto",
-    "helm-lint": "helm lint deploy/magda-auth-template -f deploy/test-deploy.yaml",
+    "helm-lint": "helm lint deploy/magda-auth-ckan -f deploy/test-deploy.yaml",
     "helm-docs": "helm-docs -t ./README.md.gotmpl -o ../../README.md",
     "retag-and-push": "retag-and-push"
   },
@@ -25,6 +25,7 @@
     "@types/lodash": "^4.14.162",
     "@types/mocha": "^8.0.3",
     "@types/passport": "1.0.3",
+    "@types/passport-local": "^1.0.33",
     "@types/urijs": "^1.19.12",
     "@types/yargs": "^15.0.9",
     "mocha": "^8.2.0"
@@ -32,15 +33,21 @@
   "dependencies": {
     "@magda/auth-api-client": "^0.0.58-alpha.4",
     "@magda/authentication-plugin-sdk": "^0.0.58-alpha.1",
+    "cheerio": "^0.22.0",
+    "gravatar": "^1.8.0",
     "express": "^4.15.4",
+    "isomorphic-fetch": "^2.2.1",
+    "isomorphic-form-data": "^1.0.0",
     "lodash": "^4.17.20",
     "passport": "0.2.2",
+    "passport-local": "^1.0.0",
+    "tsmonad": "^0.7.2",
     "urijs": "^1.19.2",
     "yargs": "^16.1.0"
   },
   "config": {
     "docker": {
-      "name": "data61/magda-auth-template",
+      "name": "data61/magda-auth-ckan",
       "include": "node_modules dist Dockerfile package.json assets"
     },
     "jwtSecret": "squirrel",
