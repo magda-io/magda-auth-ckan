@@ -6,28 +6,13 @@ import toughCookie from "tough-cookie";
 const cheerio = require("cheerio");
 const gravatar = require("gravatar");
 
-
-function createCookieDataFromRes(res:Response): string | null{
-    const combinedCookieHeader = res.headers.get("set-cookie");
-    console.log("raw cookie", combinedCookieHeader);
-    const splitCookieHeaders = setCookieParser.splitCookiesString(combinedCookieHeader);
-    const cookiesData = setCookieParser.parse(splitCookieHeaders, {
-        map: true
-    });
-    const cookies = Object.keys(cookiesData).map(key => cookiesData[key]);
-    if(!cookies?.length) {
-        return null;
-    }
-    return cookies.map(item => cookie.serialize(item.name, item.value)).join("; ")
-}
-
 async function loginToCkan(
     username: string,
     password: string,
     ckanUrl: string
 ) {
     const cookieJar = new toughCookie.CookieJar();
-    const fetch = fetchCookie(nodeFetch, cookieJar, false);
+    const fetch = fetchCookie(nodeFetch, cookieJar);
     const res = await fetch(
         urijs(ckanUrl)
             .segmentCoded("login_generic")
