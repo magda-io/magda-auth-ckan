@@ -1,24 +1,17 @@
 require("isomorphic-fetch");
 require("isomorphic-form-data");
 
-import { Either } from "tsmonad";
+import urijs from "urijs";
 
 const cheerio = require("cheerio");
 const gravatar = require("gravatar");
-import passport from "passport";
-import urijs from "urijs";
 
-namespace loginToCkan {
-    export type Failure = string;
-    export type Success = passport.Profile;
-}
-
-function loginToCkan(
+async function loginToCkan(
     username: string,
     password: string,
     ckanUrl: string
-): Promise<Either<loginToCkan.Failure, loginToCkan.Success>> {
-    return fetch(
+) {
+    const res = await fetch(
         urijs(ckanUrl)
             .segmentCoded("/login_generic")
             .search({
@@ -33,29 +26,28 @@ function loginToCkan(
             },
             body: `login=${username}&password=${password}`
         }
-    ).then((res) => {
-        const cookies = res.headers.get("set-cookie");
+    );
 
-        if (!cookies) {
-            return Promise.resolve(
-                Either.left<loginToCkan.Failure, loginToCkan.Success>(
-                    "unauthorized"
-                )
-            );
-        }
+    const cookies = res.headers.get("set-cookie");
 
-        const relevantCookie = cookies.split(";")[0];
+    if (!cookies) {
+        console.log(
+            `Failed to retrieve cookie when authenticate user: ${username}`
+        );
+        throw new Error("unauthorized");
+    }
 
-        return afterLoginSuccess(relevantCookie, username, ckanUrl);
-    });
+    const relevantCookie = cookies.split(";")[0];
+
+    return await afterLoginSuccess(relevantCookie, username, ckanUrl);
 }
 
-function afterLoginSuccess(
+async function afterLoginSuccess(
     cookies: string,
     username: string,
     ckanUrl: string
-): Promise<Either<loginToCkan.Failure, loginToCkan.Success>> {
-    return fetch(
+) {
+    const res = await fetch(
         urijs(ckanUrl)
             .segmentCoded("/user/edit")
             .segmentCoded(`/${username}`)
@@ -65,39 +57,39 @@ function afterLoginSuccess(
                 cookie: cookies
             }
         }
-    ).then((secondRes) => {
-        if (secondRes.status === 200) {
-            return parseUser(secondRes);
-        } else {
-            return Promise.resolve(
-                Either.left<loginToCkan.Failure, loginToCkan.Success>(
-                    "unauthorized"
-                )
+    );
+
+    if (res.status === 200) {
+        try {
+            return await parseUser(res);
+        } catch (e) {
+            console.log(
+                `Failed to parser user profile page for user: ${username}`
             );
+            throw new Error("unauthorized");
         }
-    });
+    } else {
+        console.log(`Failed to access user profile page for user: ${username}`);
+        throw new Error("unauthorized");
+    }
 }
 
-function parseUser(
-    res: Response
-): Promise<Either<loginToCkan.Failure, loginToCkan.Success>> {
-    return res.text().then((text) => {
-        const $ = cheerio.load(text);
+async function parseUser(res: Response) {
+    const text = await res.text();
 
-        const userName = $("#field-username").attr("value");
-        const email = $("#field-email").attr("value");
-        const displayName = $("#field-fullname").attr("value");
+    const $ = cheerio.load(text);
 
-        return Promise.resolve(
-            Either.right<loginToCkan.Failure, loginToCkan.Success>({
-                id: userName,
-                provider: "ckan",
-                displayName,
-                emails: [{ value: email }],
-                photos: [{ value: gravatar.url(email) }]
-            })
-        );
-    });
+    const userName = $("#field-username").attr("value");
+    const email = $("#field-email").attr("value");
+    const displayName = $("#field-fullname").attr("value");
+
+    return {
+        id: userName,
+        provider: "ckan",
+        displayName,
+        emails: [{ value: email }],
+        photos: [{ value: gravatar.url(email) }]
+    };
 }
 
 export default loginToCkan;

@@ -37,28 +37,46 @@ export default function createAuthPluginRouter(
 
     const router: express.Router = express.Router();
 
+    // LocalStrategy requires `body-parser` middleware to work
+    router.use(require("body-parser").urlencoded({ extended: true }));
+
     passport.use(
         "ckan-local",
-        new LocalStrategy(function (
-            username: string,
-            password: string,
-            cb: (error: any, user?: any, info?: any) => void
-        ) {
-            loginToCkan(username, password, ckanUrl).then((result) => {
-                result.caseOf({
-                    left: (error) => cb(error),
-                    right: (profile) => {
-                        createOrGetUserToken(authorizationApi, profile, "ckan")
-                            .then((userId) => cb(null, userId))
-                            .catch((error) => cb(error));
-                    }
-                });
-            });
-        })
+        new LocalStrategy(
+            async (
+                username: string,
+                password: string,
+                cb: (error: any, user?: any, info?: any) => void
+            ) => {
+                try {
+                    const profile = await loginToCkan(
+                        username,
+                        password,
+                        ckanUrl
+                    );
+
+                    const sessionData = await createOrGetUserToken(
+                        authorizationApi,
+                        profile,
+                        "ckan"
+                    );
+
+                    cb(null, sessionData);
+                } catch (e) {
+                    console.log("Login failed: " + e);
+                    cb(e);
+                }
+            }
+        )
     );
 
     router.get("/", function (req, res) {
-        res.render("form");
+        // redirect users according to [spec document](https://github.com/magda-io/magda/blob/master/docs/docs/authentication-plugin-spec.md)
+        if (req?.user?.id) {
+            redirectOnSuccess(resultRedirectionUrl, req, res);
+        } else {
+            redirectOnError("unauthorized", resultRedirectionUrl, req, res);
+        }
     });
 
     router.post(
