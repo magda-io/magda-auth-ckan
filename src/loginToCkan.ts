@@ -13,7 +13,7 @@ async function loginToCkan(
 ) {
     const res = await fetch(
         urijs(ckanUrl)
-            .segmentCoded("/login_generic")
+            .segmentCoded("login_generic")
             .search({
                 came_from: "/user/logged_in"
             })
@@ -49,8 +49,9 @@ async function afterLoginSuccess(
 ) {
     const res = await fetch(
         urijs(ckanUrl)
-            .segmentCoded("/user/edit")
-            .segmentCoded(`/${username}`)
+            .segmentCoded("user")
+            .segmentCoded("edit")
+            .segmentCoded(`${username}`)
             .toString(),
         {
             headers: {
