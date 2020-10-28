@@ -26,6 +26,7 @@
     "@types/mocha": "^8.0.3",
     "@types/passport": "1.0.3",
     "@types/passport-local": "^1.0.33",
+    "@types/set-cookie-parser": "^0.0.7",
     "@types/urijs": "^1.19.12",
     "@types/yargs": "^15.0.9",
     "mocha": "^8.2.0"
@@ -33,8 +34,10 @@
   "dependencies": {
     "@magda/auth-api-client": "^0.0.58-alpha.4",
     "@magda/authentication-plugin-sdk": "^0.0.58-alpha.2",
+    "@types/cookie": "^0.4.0",
     "body-parser": "^1.19.0",
     "cheerio": "^0.22.0",
+    "cookie": "^0.4.1",
     "express": "^4.15.4",
     "gravatar": "^1.8.0",
     "isomorphic-fetch": "^3.0.0",
@@ -42,6 +45,7 @@
     "lodash": "^4.17.20",
     "passport": "0.2.2",
     "passport-local": "^1.0.0",
+    "set-cookie-parser": "^2.4.6",
     "urijs": "^1.19.2",
     "yargs": "^16.1.0"
   },

@@ -1,16 +1,33 @@
-require("isomorphic-fetch");
-require("isomorphic-form-data");
-
+import nodeFetch from "node-fetch";
+import fetchCookie from "fetch-cookie";
 import urijs from "urijs";
+import toughCookie from "tough-cookie";
 
 const cheerio = require("cheerio");
 const gravatar = require("gravatar");
+
+
+function createCookieDataFromRes(res:Response): string | null{
+    const combinedCookieHeader = res.headers.get("set-cookie");
+    console.log("raw cookie", combinedCookieHeader);
+    const splitCookieHeaders = setCookieParser.splitCookiesString(combinedCookieHeader);
+    const cookiesData = setCookieParser.parse(splitCookieHeaders, {
+        map: true
+    });
+    const cookies = Object.keys(cookiesData).map(key => cookiesData[key]);
+    if(!cookies?.length) {
+        return null;
+    }
+    return cookies.map(item => cookie.serialize(item.name, item.value)).join("; ")
+}
 
 async function loginToCkan(
     username: string,
     password: string,
     ckanUrl: string
 ) {
+    const cookieJar = new toughCookie.CookieJar();
+    const fetch = fetchCookie(nodeFetch, cookieJar, false);
     const res = await fetch(
         urijs(ckanUrl)
             .segmentCoded("login_generic")
@@ -28,22 +45,16 @@ async function loginToCkan(
         }
     );
 
-    const cookies = res.headers.get("set-cookie");
-
-    if (!cookies) {
-        console.log(
-            `Failed to retrieve cookie when authenticate user: ${username}`
-        );
-        throw new Error("unauthorized");
+    if(res.status === 302){
+        const redirectionUrl = res.headers.get("location");
+        await fetch(redirectionUrl);
     }
 
-    const relevantCookie = cookies.split(";")[0];
-
-    return await afterLoginSuccess(relevantCookie, username, ckanUrl);
+    return await afterLoginSuccess(fetch, username, ckanUrl);
 }
 
 async function afterLoginSuccess(
-    cookies: string,
+    fetch: Function,
     username: string,
     ckanUrl: string
 ) {
@@ -52,12 +63,7 @@ async function afterLoginSuccess(
             .segmentCoded("user")
             .segmentCoded("edit")
             .segmentCoded(`${username}`)
-            .toString(),
-        {
-            headers: {
-                cookie: cookies
-            }
-        }
+            .toString()
     );
 
     if (res.status === 200) {
