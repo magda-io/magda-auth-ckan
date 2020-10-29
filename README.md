@@ -5,6 +5,10 @@
 A Magda Authentication Plugin for [CKAN](https://ckan.org/).
 A login form will be shown to user to fill up username & password for authentication.
 
+Requires MAGDA version 0.0.58 or above.
+
+To deploy the authentication plugin with your MAGDA instance, please check [MAGDA Gateway Helm Chart Document](https://github.com/magda-io/magda/blob/master/deploy/helm/internal-charts/gateway/README.md).
+
 **Homepage:** <https://github.com/magda-io/magda-auth-ckan>
 
 ## Source Code
