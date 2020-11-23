@@ -1,6 +1,6 @@
 {
   "name": "magda-auth-ckan",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A Magda Authentication Plugin for CKAN",
   "repository": "https://github.com/magda-io/magda-auth-ckan.git",
   "author": "",

@@ -72,10 +72,15 @@ export default function createAuthPluginRouter(
 
     router.get("/", function (req, res) {
         // redirect users according to [spec document](https://github.com/magda-io/magda/blob/master/docs/docs/authentication-plugin-spec.md)
+        const runtimeRedirectUrl =
+            typeof req?.query?.redirect === "string" && req.query.redirect
+                ? getAbsoluteUrl(req.query.redirect, externalUrl)
+                : resultRedirectionUrl;
+
         if (req?.user?.id) {
-            redirectOnSuccess(resultRedirectionUrl, req, res);
+            redirectOnSuccess(runtimeRedirectUrl, req, res);
         } else {
-            redirectOnError("unauthorized", resultRedirectionUrl, req, res);
+            redirectOnError("unauthorized", runtimeRedirectUrl, req, res);
         }
     });
 
