@@ -91,6 +91,11 @@ export default function createAuthPluginRouter(
             res: express.Response,
             next: express.NextFunction
         ) => {
+            res.locals.redirectUrl =
+                typeof req?.query?.redirect === "string" && req.query.redirect
+                    ? getAbsoluteUrl(req.query.redirect, externalUrl)
+                    : resultRedirectionUrl;
+
             passport.authenticate("ckan-local", {
                 failWithError: true
             })(req, res, next);
@@ -100,7 +105,7 @@ export default function createAuthPluginRouter(
             res: express.Response,
             next: express.NextFunction
         ) => {
-            redirectOnSuccess(resultRedirectionUrl, req, res);
+            redirectOnSuccess(res.locals.redirectUrl, req, res);
         },
         (
             err: any,
@@ -108,7 +113,7 @@ export default function createAuthPluginRouter(
             res: express.Response,
             next: express.NextFunction
         ): any => {
-            redirectOnError(err, resultRedirectionUrl, req, res);
+            redirectOnError(err, res.locals.redirectUrl, req, res);
         }
     );
 
