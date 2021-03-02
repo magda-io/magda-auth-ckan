@@ -47,7 +47,7 @@
     "passport": "0.2.2",
     "passport-local": "^1.0.0",
     "tough-cookie": "^4.0.0",
-    "urijs": "^1.19.2",
+    "urijs": "^1.19.6",
     "yargs": "^16.1.0"
   },
   "config": {
